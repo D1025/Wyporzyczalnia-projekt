@@ -11,9 +11,9 @@ services:
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
     volumes:
-      - ${POSTGRES_VOLUME_NAME:-postgres_data}:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
     networks:
-      - ${NETWORK_NAME:-wyporzyczalnia-network}
+      - wyporzyczalnia-network
 
   keycloak:
     image: ${KEYCLOAK_IMAGE:-quay.io/keycloak/keycloak:22.0}
@@ -31,7 +31,7 @@ services:
       - postgres
     command: ${KEYCLOAK_COMMAND:-start-dev}
     networks:
-      - ${NETWORK_NAME:-wyporzyczalnia-network}
+      - wyporzyczalnia-network
 
   backend:
     build: ${BACKEND_BUILD_PATH:-./wyporzyczalnia}
@@ -49,11 +49,11 @@ services:
       - postgres
       - keycloak
     networks:
-      - ${NETWORK_NAME:-wyporzyczalnia-network}
+      - wyporzyczalnia-network
 
 volumes:
-  ${POSTGRES_VOLUME_NAME:-postgres_data}:
+  postgres_data:
 
 networks:
-  ${NETWORK_NAME:-wyporzyczalnia-network}:
-    driver: ${NETWORK_DRIVER:-bridge}
+  wyporzyczalnia-network:
+    driver: bridge
