@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-tables
+      author: github-copilot
+      changes:
+        - sqlFile:
+            path: changelog/001-create-tables.sql
+            relativeToChangelogFile: true
