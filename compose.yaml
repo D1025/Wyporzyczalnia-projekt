@@ -3,9 +3,9 @@ version: '3.8'
 services:
   postgres:
     image: ${POSTGRES_IMAGE:-postgres:15}
-    container_name: ${POSTGRES_CONTAINER_NAME:-wyporzyczalnia-postgres}
+    container_name: ${POSTGRES_CONTAINER_NAME:-wypozyczalnia-postgres}
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-wyporzyczalnia}
+      POSTGRES_DB: ${POSTGRES_DB:-wypozyczalnia}
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
     ports:
@@ -13,7 +13,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
-      - wyporzyczalnia-network
+      - wypozyczalnia-network
 
   postgres-keycloak:
     image: ${KEYCLOAK_POSTGRES_IMAGE:-postgres:15}
@@ -27,11 +27,11 @@ services:
     volumes:
       - keycloak_postgres_data:/var/lib/postgresql/data
     networks:
-      - wyporzyczalnia-network
+      - wypozyczalnia-network
 
   keycloak:
     image: ${KEYCLOAK_IMAGE:-quay.io/keycloak/keycloak:22.0}
-    container_name: ${KEYCLOAK_CONTAINER_NAME:-wyporzyczalnia-keycloak}
+    container_name: ${KEYCLOAK_CONTAINER_NAME:-wypozyczalnia-keycloak}
     environment:
       KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN:-admin}
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin}
@@ -40,22 +40,24 @@ services:
       KC_DB_USERNAME: ${KC_DB_USERNAME:-keycloak}
       KC_DB_PASSWORD: ${KC_DB_PASSWORD:-keycloak}
     ports:
-      - "${KEYCLOAK_PORT:-8080}:8080"
+      - "${KEYCLOAK_PORT:-8086}:8080"
     depends_on:
       - postgres-keycloak
-    command: ${KEYCLOAK_COMMAND:-start-dev}
+    volumes:
+      - ./wyporzyczalnia/keycloak-realm:/opt/keycloak/data/import
+    command: ${KEYCLOAK_COMMAND:-start-dev --import-realm}
     networks:
-      - wyporzyczalnia-network
+      - wypozyczalnia-network
 
   backend:
     build: ${BACKEND_BUILD_PATH:-./wyporzyczalnia}
-    container_name: ${BACKEND_CONTAINER_NAME:-wyporzyczalnia-backend}
+    container_name: ${BACKEND_CONTAINER_NAME:-wypozyczalnia-backend}
     ports:
-      - "${BACKEND_PORT:-8081}:8080"
+      - "${BACKEND_PORT:-8080}:8080"
     environment:
       DB_HOST: ${DB_HOST:-postgres}
       DB_PORT: ${DB_PORT:-5432}
-      DB_NAME: ${DB_NAME:-wyporzyczalnia}
+      DB_NAME: ${DB_NAME:-wypozyczalnia}
       DB_USER: ${DB_USER:-postgres}
       DB_PASSWORD: ${DB_PASSWORD:-password}
       KEYCLOAK_URL: ${KEYCLOAK_URL:-http://keycloak:8080}
@@ -64,12 +66,12 @@ services:
       - postgres-keycloak
       - keycloak
     networks:
-      - wyporzyczalnia-network
+      - wypozyczalnia-network
 
 volumes:
   postgres_data:
   keycloak_postgres_data:
 
 networks:
-  wyporzyczalnia-network:
+  wypozyczalnia-network:
     driver: bridge
